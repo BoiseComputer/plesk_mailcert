@@ -41,7 +41,7 @@ certfordovecot () {
 certforpostfix () {
     if [ -e /etc/postfix/postfix_default.pem ]
     then
-        if diff  /etc/dovecot/private/ssl-cert-and-key.pem $CERTFILE > /dev/null
+        if diff  /etc/postfix/postfix_default.pem $CERTFILE > /dev/null
             then
                 echo -e "\e[33mSkipped: \e[39mPostfix already up to date."
             else
@@ -55,7 +55,7 @@ certforpostfix () {
 certforcourier () {
     if [ -e /usr/share/imapd.pem ]
     then
-        if diff  /etc/dovecot/private/ssl-cert-and-key.pem $CERTFILE > /dev/null
+        if diff  /usr/share/imapd.pem $CERTFILE > /dev/null
             then
                 echo -e "\e[33mSkipped: \e[39mCourier-IMAP already up to date."
             else
@@ -66,7 +66,7 @@ certforcourier () {
     fi
     if [ -e /usr/share/pop3d.pem ]
     then
-        if diff  /etc/dovecot/private/ssl-cert-and-key.pem $CERTFILE > /dev/null
+        if diff  /usr/share/pop3d.pem $CERTFILE > /dev/null
             then
                 echo -e "\e[33mSkipped: \e[39mCourier-POP3 already up to date."
             else
@@ -80,7 +80,7 @@ certforcourier () {
 certforwebmin () {
     if [ -e /etc/webmin/miniserv.pem ]
     then
-        if diff  /etc/dovecot/private/ssl-cert-and-key.pem $CERTFILE > /dev/null
+        if diff  /etc/webmin/miniserv.pem $CERTFILE > /dev/null
             then
                 echo -e "\e[33mSkipped: \e[39mWebmin already up to date."
             else
