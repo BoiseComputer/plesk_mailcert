@@ -15,14 +15,14 @@ red="\033[31m";yellow="\033[33m";green="\033[32m";nocolor="\033[0m"
 # Verify config file and create if necessary
 if [ -f "/etc/mailcert/mailcert.cfg" ]; then
     source /etc/mailcert/mailcert.cfg
-	echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
+    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
     echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
 else
     touch -p /etc/mailcert/mailcert.cfg
     echo '#Set hostname here if custom. Example: HOSTNAME=server1.boisehosting.net' >> /etc/mailcert/mailcert.cfg
     echo 'HOSTNAME=$(hostname)' >> /etc/mailcert/mailcert.cfg
     source /etc/mailcert/mailcert.cfg
-	echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
+    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
     echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
 fi
 #Displays Help
@@ -34,7 +34,7 @@ while getopts "vrh" opt; do
     case $opt in
     (v)
         #Script version
-        echo -e " You are running verion $MailCertVersion"
+        echo -e "You are running verion $MailCertVersion"
         MailCertLatest=`curl -s https://raw.githubusercontent.com/BoiseComputer/plesk_mailcert/master/.version`
         if [[ $MailCertLatest > $MailCertVersion ]]; then
         echo ;echo -e "${red}NOTICE: ${yellow}A newer version of the Plesk Let's Encrypt Mail Update script is available.${nocolor}"
@@ -139,7 +139,7 @@ while getopts "vrh" opt; do
     ;;
     (h)
         usage
-        echo -e " You are running verion $MailCertVersion"
+        echo -e "You are running verion $MailCertVersion"
         echo
         echo -e " ${red}-v${nocolor} : ${yellow}Checks if a newer version of this script is available.${nocolor}"
         echo -e " ${red}-r${nocolor} : ${yellow}Runs the script. If running in a cron job you will need to run this argument.${nocolor}"
