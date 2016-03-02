@@ -4,114 +4,154 @@
 # Postfix - Dovecot - Courier - Webmin                                  #
 # Original by Powie . www.powie.de                                      #
 # Updated by Brian Aldridge . www.biteoftech.com                        #
-# V1.00                                                                 #
+# V1.01                                                                 #
 # For Plesk / Debian                                                    #
 #########################################################################
-# Set hostname here if custom. Example: HOSTNAME=server1.boisehosting.net
-HOSTNAME=$(hostname)
-echo -e "Server name set to: \e[4m$HOSTNAME"
-echo -e "\e[0mIf this is incorrect please set custom hostname in script."
-
-# This is our http conf we are looking into it
-CONFFILE=/var/www/vhosts/system/${HOSTNAME}/conf/httpd.conf
-
-#we need some functions
-#get the pem file from apache conf, because its written there after changes
-getpemfile() {
-    CERT=$(grep -m 1 SSLCertificateFile ${CONFFILE})
-    CERTFILE=${CERT:20}
-    echo "Plesk certificate located at:${CERTFILE}"
+# Set current version
+MailCertVersion="1.01"
+PROGNAME=${0##*/}
+#Setting colors for display.
+red="\033[31m";yellow="\033[33m";green="\033[32m";nocolor="\033[0m"
+# Verify config file and create if necessary
+if [ -f "/etc/mailcert/mailcert.cfg" ]; then
+    source /etc/mailcert/mailcert.cfg
+	echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
+    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
+else
+    touch -p /etc/mailcert/mailcert.cfg
+    echo '#Set hostname here if custom. Example: HOSTNAME=server1.boisehosting.net' >> /etc/mailcert/mailcert.cfg
+    echo 'HOSTNAME=$(hostname)' >> /etc/mailcert/mailcert.cfg
+    source /etc/mailcert/mailcert.cfg
+	echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
+    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
+fi
+#Displays Help
+usage()
+{ echo -e "Usage: $PROGNAME [${red}-v${nocolor} : Version Check] [${red}-r${nocolor} : Run Certificate Check] [${red}-h${nocolor}: Display Help]"
 }
-
-#copy pem to dovecot
-certfordovecot () {
-    if [ -e /etc/dovecot/private/ssl-cert-and-key.pem ]
-    then
-        if diff  /etc/dovecot/private/ssl-cert-and-key.pem $CERTFILE > /dev/null
-            then
-                echo -e "\e[33mSkipped: \e[39mDovecot already up to date."
+#Catch options
+while getopts "vrh" opt; do
+    case $opt in
+    (v)
+        #Script version
+        MailCertLatest=`curl -s https://raw.githubusercontent.com/BoiseComputer/plesk_mailcert/master/.version`
+        if [[ $MailCertLatest > $MailCertVersion ]]; then
+        echo ;echo -e "${red}NOTICE: ${yellow}A newer version of the Plesk Let's Encrypt Mail Update script is available.${nocolor}"
+        read -p "Would you like to upgrade $PROGNAME from v$MailCertVersion to v$MailCertLatest? (y/n):" -n 1 -r
+        echo -en "\n"
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                curl https://raw.githubusercontent.com/BoiseComputer/plesk_mailcert/master/mailcert > ./$PROGNAME
+                echo -e "${green}$PROGNAME has been updated to the most recent version.${nocolor}"
+                exit 0
+            fi
+        else
+        echo -e "You are already running the most recent version of $PROGNAME"
+        fi
+    ;;
+    (r)
+        # This is our http conf we are looking into it
+        CONFFILE=/var/www/vhosts/system/${HOSTNAME}/conf/httpd.conf
+        #get the pem file from apache conf, because its written there after changes
+        getpemfile(){
+            CERT=$(grep -m 1 SSLCertificateFile ${CONFFILE})
+            CERTFILE=${CERT:20}
+        echo "Plesk certificate located at:${CERTFILE}"
+                    }
+        #copy pem to dovecot
+        certfordovecot () {
+        if [ -e /etc/dovecot/private/ssl-cert-and-key.pem ];then
+            if diff  /etc/dovecot/private/ssl-cert-and-key.pem $CERTFILE > /dev/null;then
+                echo -e "${yellow}Skipped: ${nocolor}Dovecot already up to date."
             else
                 cp ${CERTFILE} /etc/dovecot/private/ssl-cert-and-key.pem
-                echo -e "\e[32mSUCCESS: \e[39mDovecot Certificate Updated"
+                echo -e "${green}SUCCESS: ${nocolor}Dovecot Certificate Updated"
                 service dovecot restart
             fi
-    fi
-}
-#copy pem to postfix
-certforpostfix () {
-    if [ -e /etc/postfix/postfix_default.pem ]
-    then
-        if diff  /etc/postfix/postfix_default.pem $CERTFILE > /dev/null
-            then
-                echo -e "\e[33mSkipped: \e[39mPostfix already up to date."
+        fi
+                        }
+        #copy pem to postfix
+        certforpostfix () {
+        if [ -e /etc/postfix/postfix_default.pem ];then
+            if diff  /etc/postfix/postfix_default.pem $CERTFILE > /dev/null;then
+                echo -e "${yellow}Skipped: ${nocolor}Postfix already up to date."
             else
                 cp ${CERTFILE} /etc/postfix/postfix_default.pem
-                echo -e "\e[32mSUCCESS: \e[39mPostfix Certificate Updated"
+                echo -e "${green}SUCCESS: ${nocolor}Postfix Certificate Updated"
                 service postfix restart
             fi
-    fi
-}
-#copy pem to courier
-certforcourier () {
-    if [ -e /usr/share/imapd.pem ]
-    then
-        if diff  /usr/share/imapd.pem $CERTFILE > /dev/null
-            then
-                echo -e "\e[33mSkipped: \e[39mCourier-IMAP already up to date."
+        fi
+                        }
+        #copy pem to courier
+        certforcourier () {
+        if [ -e /usr/share/imapd.pem ];then
+            if diff  /usr/share/imapd.pem $CERTFILE > /dev/null;then
+                echo -e "${yellow}Skipped: ${nocolor}Courier-IMAP already up to date."
             else
                 cp ${CERTFILE} /usr/share/imapd.pem
-                echo -e "\e[32mSUCCESS: \e[39mCourier-IMAP Certificate Updated"
+                echo -e "${green}SUCCESS: ${nocolor}Courier-IMAP Certificate Updated"
                 service xinetd restart
             fi
-    fi
-    if [ -e /usr/share/pop3d.pem ]
-    then
-        if diff  /usr/share/pop3d.pem $CERTFILE > /dev/null
-            then
-                echo -e "\e[33mSkipped: \e[39mCourier-POP3 already up to date."
+        fi
+        if [ -e /usr/share/pop3d.pem ];then
+            if diff  /usr/share/pop3d.pem $CERTFILE > /dev/null;then
+                echo -e "${yellow}Skipped: ${nocolor}Courier-POP3 already up to date."
             else
                 cp ${CERTFILE} /usr/share/pop3d.pem
-                echo -e "\e[32mSUCCESS: \e[39mCourier-POP3 Certificate Updated"
+                echo -e "${green}SUCCESS: ${nocolor}Courier-POP3 Certificate Updated"
                 service xinetd restart
             fi
-    fi
-}
-#copy pem to webmin
-certforwebmin () {
-    if [ -e /etc/webmin/miniserv.pem ]
-    then
-        if diff  /etc/webmin/miniserv.pem $CERTFILE > /dev/null
-            then
-                echo -e "\e[33mSkipped: \e[39mWebmin already up to date."
+        fi
+                        }
+        #copy pem to webmin
+        certforwebmin () {
+        if [ -e /etc/webmin/miniserv.pem ];then
+            if diff  /etc/webmin/miniserv.pem $CERTFILE > /dev/null;then
+                echo -e "${yellow}Skipped: ${nocolor}Webmin already up to date."
             else
                 cp ${CERTFILE} /etc/webmin/miniserv.pem
-                echo -e "\e[32mSUCCESS: \e[39mWebmin Certificate Updated"
+                echo -e "${green}SUCCESS: ${nocolor}Webmin Certificate Updated"
                 service webmin restart
             fi
-    fi
-}
-
-#copy the cert file to the services
-copycerts() {
-    certfordovecot
-    certforpostfix
-    certforcourier
-    certforwebmin
-}
-
-#now we start
-if [ -e ${CONFFILE} ]
-then
-    getpemfile
-    if [ -e ${CERTFILE} ]
-    then
-        copycerts
-        exit 0
-    else
-        echo "cert file doesnt exists"
-        exit 1
-    fi
-else
-    echo "conf file not found"
-    exit 1
+        fi
+                        }
+        #copy the cert file to the services
+        copycerts() {
+            certfordovecot
+            certforpostfix
+            certforcourier
+            certforwebmin
+                    }
+        #now we start
+        if [ -e ${CONFFILE} ];then
+            getpemfile
+            if [ -e ${CERTFILE} ];then
+                copycerts
+                exit 0
+            else
+                echo "cert file doesnt exists"
+                exit 1
+            fi
+        else
+            echo "conf file not found"
+            exit 1
+        fi
+    ;;
+    (h)
+        usage
+        echo
+        echo -e " ${red}-v${nocolor} : ${yellow}Checks if a newer version of this script is available.${nocolor}"
+        echo -e " ${red}-r${nocolor} : ${yellow}Runs the script. If running in a cron job you will need to run this argument.${nocolor}"
+        echo -e " ${red}-h${nocolor} : ${yellow}Displays this help page.${nocolor}"
+     ;;
+    (?)
+        echo -e "Invalid Option"
+        usage
+        exit;;
+  esac
+done
+# Checking for no attribute.
+if [ -z "$1" ]
+ then
+  usage
+  exit 1
 fi
