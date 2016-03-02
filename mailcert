@@ -8,7 +8,7 @@
 # For Plesk / Debian                                                    #
 #########################################################################
 # Set current version
-MailCertVersion="1.01"
+MailCertVersion="1.03"
 PROGNAME=${0##*/}
 #Setting colors for display.
 red="\033[31m";yellow="\033[33m";green="\033[32m";nocolor="\033[0m"
