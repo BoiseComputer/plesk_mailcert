@@ -37,7 +37,7 @@ while getopts "vrh" opt; do
         echo -e "You are running verion $MailCertVersion"
         MailCertLatest=`curl -s https://raw.githubusercontent.com/BoiseComputer/plesk_mailcert/master/.version`
         if [[ $MailCertLatest > $MailCertVersion ]]; then
-        echo ;echo -e "${red}NOTICE: ${yellow}A newer version of the Plesk Let's Encrypt Mail Update script is available.${nocolor}"
+        echo -e "${red}NOTICE: ${yellow}A newer version of the Plesk Let's Encrypt Mail Update script is available.${nocolor}"
         read -p "Would you like to upgrade $PROGNAME from v$MailCertVersion to v$MailCertLatest? (y/n):" -n 1 -r
         echo -en "\n"
             if [[ $REPLY =~ ^[Yy]$ ]]; then
