@@ -17,7 +17,7 @@ Usage:
 - Add a webspace with your plesk hostname and secure it with as LetsEncrypt certificate
 - Edit /etc/mailcert/mailcert.cfg and set your certificate's hostname if different than machine's hostname.
 - Run it manually or set up cron job. 
-`Example: @hourly /root/plesk-certupdate/mailcert -r > /dev/null`
+**Example:** `@hourly /root/plesk-certupdate/mailcert -r > /dev/null`
 ``` 
 Usage: mailcert [-v : Version Check] [-r : Run Certificate Check] [-h: Display Help]
  -v : Checks if a newer version of this script is available.
