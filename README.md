@@ -16,13 +16,14 @@ Usage:
 - Install the LetsEncrypt Plesk Extension: https://github.com/plesk/letsencrypt-plesk
 - Add a webspace with your plesk hostname and secure it with as LetsEncrypt certificate
 - Edit /etc/mailcert/mailcert.cfg and set your certificate's hostname if different than machine's hostname.
-- Run it manually or set up cron job. Example: @hourly /root/plesk-certupdate/mailcert -r > /dev/null
-- 
+- Run it manually or set up cron job. 
+`Example: @hourly /root/plesk-certupdate/mailcert -r > /dev/null`
+``` 
 Usage: mailcert [-v : Version Check] [-r : Run Certificate Check] [-h: Display Help]
  -v : Checks if a newer version of this script is available.
  -r : Runs the script. If running in a cron job you will need to run this argument.
  -h : Displays this help page.
-
+```
 
 Remarks:
 The MAILCERT Script try's to get the actual PEM File from the vhost. This file is changed after each renewal of the LetsEncrypt certificate. If the file exists, it will be copied to the known default pem file of the services.
