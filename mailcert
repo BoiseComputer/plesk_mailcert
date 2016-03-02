@@ -34,6 +34,7 @@ while getopts "vrh" opt; do
     case $opt in
     (v)
         #Script version
+        echo -e " You are running verion $MailCertVersion"
         MailCertLatest=`curl -s https://raw.githubusercontent.com/BoiseComputer/plesk_mailcert/master/.version`
         if [[ $MailCertLatest > $MailCertVersion ]]; then
         echo ;echo -e "${red}NOTICE: ${yellow}A newer version of the Plesk Let's Encrypt Mail Update script is available.${nocolor}"
@@ -138,6 +139,7 @@ while getopts "vrh" opt; do
     ;;
     (h)
         usage
+        echo -e " You are running verion $MailCertVersion"
         echo
         echo -e " ${red}-v${nocolor} : ${yellow}Checks if a newer version of this script is available.${nocolor}"
         echo -e " ${red}-r${nocolor} : ${yellow}Runs the script. If running in a cron job you will need to run this argument.${nocolor}"
