@@ -1,5 +1,5 @@
 # plesk_mailcert
-Version 1.03
+Version 1.05
 
 Copys Plesk LetsEncrypt CERT to Mailservers and Webmin
 
