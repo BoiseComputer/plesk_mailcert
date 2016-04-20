@@ -13,6 +13,7 @@ Supported:
 - Dovecot
 - Courier
 - Webmin
+- Qmail
 
 Usage:
 - Install the LetsEncrypt Plesk Extension: https://github.com/plesk/letsencrypt-plesk
@@ -35,3 +36,4 @@ At this time:
 - Courier IMAP: /usr/share/imapd.pem
 - Courier POP3: /usr/share/pop3d.pem
 - Webmin: /etc/webmin/miniserv.pem
+- Qmail: /var/qmail/control/servercert.pem
