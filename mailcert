@@ -68,16 +68,12 @@ done
 
 if [ -f "/etc/mailcert/mailcert.cfg" ]; then
     source /etc/mailcert/mailcert.cfg
-    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
-    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
 else
     mkdir -p /etc/mailcert/
     touch /etc/mailcert/mailcert.cfg
     echo '#Set hostname here if custom. Example: HOSTNAME=server1.boisehosting.net' >> /etc/mailcert/mailcert.cfg
     echo 'HOSTNAME=$(hostname)' >> /etc/mailcert/mailcert.cfg
     source /etc/mailcert/mailcert.cfg
-    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
-    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
 fi
 
 if [ "$runnow" = true ];then
@@ -181,7 +177,8 @@ if [ "$runnow" = true ];then
             exit 1
         fi
 fi
-
+    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
+    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg or via command variable.${nocolor}"
 # Checking for no attribute.
 if [ -z "$1" ]
  then
