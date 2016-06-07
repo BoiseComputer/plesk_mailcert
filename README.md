@@ -1,7 +1,7 @@
 # plesk_mailcert
 Version 1.06
 
-Copys Plesk LetsEncrypt CERT to Mailservers and Webmin
+Copies Plesk LetsEncrypt CERT to Mailservers and Webmin
 
 The script MAILCERT is used if you secured your plesk server also with an LetsEncrypt certificate, Example: server.mydomain.tld
 WARNING! This is experimental and only tested on Debian/Ubuntu Systems at this time. Make sure you have backed up your PEM files before usage
