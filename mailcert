@@ -4,35 +4,28 @@
 # Postfix - Dovecot - Courier - Webmin - Qmail                          #
 # Original by Powie . www.powie.de                                      #
 # Updated by Brian Aldridge . www.biteoftech.com                        #
-# V1.05                                                                 #
-# For Plesk / Debian                                                    #
+# V1.06                                                                 #
+# For Plesk / Debian/Ubuntu                                             #
 #########################################################################
 # Set current version
-MailCertVersion="1.05"
+MailCertVersion="1.06"
 PROGNAME=${0##*/}
 #Setting colors for display.
 red="\033[31m";yellow="\033[33m";green="\033[32m";nocolor="\033[0m"
 # Verify config file and create if necessary
-if [ -f "/etc/mailcert/mailcert.cfg" ]; then
-    source /etc/mailcert/mailcert.cfg
-    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
-    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
-else
-    mkdir -p /etc/mailcert/
-    touch /etc/mailcert/mailcert.cfg
-    echo '#Set hostname here if custom. Example: HOSTNAME=server1.boisehosting.net' >> /etc/mailcert/mailcert.cfg
-    echo 'HOSTNAME=$(hostname)' >> /etc/mailcert/mailcert.cfg
-    source /etc/mailcert/mailcert.cfg
-    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
-    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
-fi
+runnow=false
 #Displays Help
 usage()
-{ echo -e "Usage: $PROGNAME [${red}-v${nocolor} : Version Check] [${red}-r${nocolor} : Run Certificate Check] [${red}-h${nocolor}: Display Help]"
+{ echo -e "Usage: $PROGNAME [${red}-v${nocolor} : Version Check] ${red}-s example.com${nocolor} : Set Hostname [${red}-r${nocolor} : Run Certificate Check] [${red}-h${nocolor}: Display Help]"
 }
 #Catch options
-while getopts "vrh" opt; do
+while getopts ":s:vrh" opt; do
     case $opt in
+    (s)
+        #Set Hostname
+        echo -e "Manually setting hostname."
+	export HOSTNAME=$OPTARG
+    ;;
     (v)
         #Script version
         echo -e "You are running verion $MailCertVersion"
@@ -51,6 +44,43 @@ while getopts "vrh" opt; do
         fi
     ;;
     (r)
+	export runnow=true
+    ;;
+    (h)
+        usage
+        echo -e "You are running verion $MailCertVersion"
+        echo
+        echo -e " ${red}-v${nocolor} : ${yellow}Checks if a newer version of this script is available.${nocolor}"
+        echo -e " ${red}-s example.com${nocolor} : ${yellow}Sets the hostname via command line.${nocolor}"
+        echo -e " ${red}-r${nocolor} : ${yellow}Runs the script. If running in a cron job you will need to run this argument.${nocolor}"
+        echo -e " ${red}-h${nocolor} : ${yellow}Displays this help page.${nocolor}"
+     ;;
+    (:)
+        echo -e "Option -$OPTARG requires an argument." >&2
+        usage
+        exit;;
+    (?)
+        echo -e "Invalid Option"
+        usage
+        exit;;
+  esac
+done
+
+if [ -f "/etc/mailcert/mailcert.cfg" ]; then
+    source /etc/mailcert/mailcert.cfg
+    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
+    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
+else
+    mkdir -p /etc/mailcert/
+    touch /etc/mailcert/mailcert.cfg
+    echo '#Set hostname here if custom. Example: HOSTNAME=server1.boisehosting.net' >> /etc/mailcert/mailcert.cfg
+    echo 'HOSTNAME=$(hostname)' >> /etc/mailcert/mailcert.cfg
+    source /etc/mailcert/mailcert.cfg
+    echo -e "${yellow}Server name set to: ${red}$HOSTNAME"
+    echo -e "${nocolor}If this is incorrect please set custom hostname in ${yellow}/etc/mailcert/mailcert.cfg${nocolor}"
+fi
+
+if [ "$runnow" = true ];then
         # This is our http conf we are looking into it
         CONFFILE=/var/www/vhosts/system/${HOSTNAME}/conf/httpd.conf
         #get the pem file from apache conf, because its written there after changes
@@ -150,21 +180,8 @@ while getopts "vrh" opt; do
             echo "conf file not found"
             exit 1
         fi
-    ;;
-    (h)
-        usage
-        echo -e "You are running verion $MailCertVersion"
-        echo
-        echo -e " ${red}-v${nocolor} : ${yellow}Checks if a newer version of this script is available.${nocolor}"
-        echo -e " ${red}-r${nocolor} : ${yellow}Runs the script. If running in a cron job you will need to run this argument.${nocolor}"
-        echo -e " ${red}-h${nocolor} : ${yellow}Displays this help page.${nocolor}"
-     ;;
-    (?)
-        echo -e "Invalid Option"
-        usage
-        exit;;
-  esac
-done
+fi
+
 # Checking for no attribute.
 if [ -z "$1" ]
  then
