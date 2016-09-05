@@ -73,12 +73,13 @@ else
     touch /etc/mailcert/mailcert.cfg
     echo '#Set hostname here if custom. Example: HOSTNAME=server1.boisehosting.net' >> /etc/mailcert/mailcert.cfg
     echo 'HOSTNAME=$(hostname)' >> /etc/mailcert/mailcert.cfg
+    echo 'HTTPD_VHOSTS_D=/var/www/vhosts' >> /etc/mailcert/mailcert.cfg
     source /etc/mailcert/mailcert.cfg
 fi
 
 if [ "$runnow" = true ];then
         # This is our http conf we are looking into it
-        CONFFILE=/var/www/vhosts/system/${HOSTNAME}/conf/httpd.conf
+        CONFFILE=${HTTPD_VHOSTS_D}/system/${HOSTNAME}/conf/httpd.conf
         #get the pem file from apache conf, because its written there after changes
         getpemfile(){
             CERT=$(grep -m 1 SSLCertificateFile ${CONFFILE})
